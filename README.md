@@ -20,7 +20,7 @@
 - PostgreSQL
 - pnpm
 
-## setup guide
+## Setup Guide
 
 - Clone The repo
 - setup a new Postgres database
