@@ -28,13 +28,13 @@ export default function CheckoutPageClient(props: Props) {
   const serverDate = new Date(props.serverTime);
   const timeDifference = ticketDate && new Date(+serverDate - +ticketDate);
 
-  async function searchTicketHandler() {
-    if (!barcodeIdInput) {
+  async function searchTicketHandler(barcode: string) {
+    if (!barcode) {
       setError('Plase Provide a valid barcode-id');
       return;
     }
 
-    const response = await fetch(`/api/tickets/${barcodeIdInput}`);
+    const response = await fetch(`/api/tickets/${barcode}`);
     const data = (await response.json()) as TicketIdResponseBodyPost;
 
     if ('error' in data) {
@@ -94,7 +94,7 @@ export default function CheckoutPageClient(props: Props) {
         <Button
           variant="contained"
           sx={{ color: 'text.secondary' }}
-          onClick={() => searchTicketHandler()}
+          onClick={() => searchTicketHandler(barcodeIdInput)}
         >
           Search Ticket
         </Button>
