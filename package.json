@@ -3,21 +3,28 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
     "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "dev": "next dev",
+    "lint": "next lint",
+    "migrate": "ley --require tsm",
+    "start": "next start"
   },
   "dependencies": {
     "@emotion/cache": "^11.11.0",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
     "@mui/material": "^5.14.11",
+    "dotenv": "^16.3.1",
+    "jsbarcode": "^3.11.5",
+    "ley": "^0.8.1",
     "next": "latest",
+    "postgres": "^3.3.5",
     "react": "latest",
     "react-dom": "latest",
     "sass": "^1.68.0",
-    "sharp": "^0.32.6"
+    "server-only": "^0.0.1",
+    "sharp": "^0.32.6",
+    "tsm": "^2.3.0"
   },
   "devDependencies": {
     "@types/node": "latest",

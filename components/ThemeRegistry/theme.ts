@@ -17,10 +17,10 @@ const theme = createTheme({
       secondary: '#FAF9F6',
     },
     primary: {
-      main: '#FFCD87',
+      main: '#FF9500',
     },
     secondary: {
-      main: '#87B9FF',
+      main: '#006AFF',
     },
   },
   typography: {
