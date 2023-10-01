@@ -13,7 +13,10 @@ import { useState } from 'react';
 import BarcodeCanvas from '../../components/BarcodeCanvas';
 import { Ticket } from '../../migrations/create-table-tickets';
 import { calculatePrice } from '../../util/price';
-import { TicketIdResponseBodyPost } from '../api/tickets/[barcodeId]/route';
+import {
+  TicketIdResponseBodyGet,
+  TicketIdResponseBodyPut,
+} from '../api/tickets/[barcodeId]/route';
 
 type Props = { serverTime: string };
 
@@ -35,7 +38,7 @@ export default function CheckoutPageClient(props: Props) {
     }
 
     const response = await fetch(`/api/tickets/${barcode}`);
-    const data = (await response.json()) as TicketIdResponseBodyPost;
+    const data = (await response.json()) as TicketIdResponseBodyGet;
 
     if ('error' in data) {
       setError(data.error);
@@ -63,7 +66,7 @@ export default function CheckoutPageClient(props: Props) {
       `/api/tickets/${barcodeIdInput}?method=${paymentMetodInput}`,
       { method: 'PUT' },
     );
-    const data = (await response.json()) as TicketIdResponseBodyPost;
+    const data = (await response.json()) as TicketIdResponseBodyPut;
 
     if ('error' in data) {
       setError(data.error);

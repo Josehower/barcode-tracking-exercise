@@ -9,7 +9,7 @@ type ApiError = {
   error: string;
 };
 
-export type TicketIdResponseBodyPost = { ticket: Ticket } | ApiError;
+export type TicketIdResponseBodyGet = { ticket: Ticket } | ApiError;
 export type TicketIdResponseBodyPut = { ticket: Ticket } | ApiError;
 
 export async function GET(
@@ -19,7 +19,7 @@ export async function GET(
   }: {
     params: Record<string, string | string[]>;
   },
-): Promise<NextResponse<TicketIdResponseBodyPost>> {
+): Promise<NextResponse<TicketIdResponseBodyGet>> {
   const barcodeId = params.barcodeId as string;
 
   if (!barcodeId) {
