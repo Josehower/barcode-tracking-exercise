@@ -1,9 +1,18 @@
 # SensevenSpa
 
+- Create new tickets to track visitors service time
+
+![image](https://github.com/Josehower/senseven-spa/assets/61600906/294a21ab-f259-485d-863f-a53b7cf359b2)
+
+- Calculate the price based on visitor time and validate payment
+
+![image](https://github.com/Josehower/senseven-spa/assets/61600906/765ce029-bba0-47c2-b398-30632350253d)
+
 ## Tecnologies
 
 - Next.js
 - PostgreSQL
+- MUI
 
 ### Requirements:
 
@@ -23,7 +32,7 @@
 
 ![image](https://github.com/Josehower/senseven-spa/assets/61600906/1b149c31-89f3-49d7-bb60-4ba992baf574)
 
-⚠️ Schema was not implemented fully and was simplifyied for time constraint
+⚠️ The schema was not fully implemented and was simplified for time constraints, please check [migrations to see current setup](https://github.com/Josehower/senseven-spa/blob/main/migrations/create-table-tickets.ts)
 
 ## Commit History:
 
