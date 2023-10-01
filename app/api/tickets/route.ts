@@ -1,7 +1,7 @@
 import crypto from 'node:crypto';
 import { NextResponse } from 'next/server';
-import { createTicket, getTickets } from '../../database/tickets';
-import { Ticket } from '../../migrations/create-table-tickets';
+import { createTicket, getTickets } from '../../../database/tickets';
+import { Ticket } from '../../../migrations/create-table-tickets';
 
 type ApiError = {
   error: string;

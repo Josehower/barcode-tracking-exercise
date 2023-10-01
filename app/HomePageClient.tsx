@@ -10,20 +10,21 @@ import {
 } from '@mui/material';
 import jsBarcode from 'jsbarcode';
 import { useEffect, useRef, useState } from 'react';
+import BarcodeCanvas from '../components/BarcodeCanvas';
 import { Ticket } from '../migrations/create-table-tickets';
-import { TicketResponseBodyPost } from './api/route';
+import { TicketResponseBodyPost } from './api/tickets/route';
 
 type Props = { tickets: Ticket[] };
 
 export default function HomePageClient(props: Props) {
   const [tickets, setTickets] = useState(props.tickets);
   const [error, setError] = useState<string>();
-  const canvasRef = useRef(null);
+
   const mainTicket = tickets[0];
   const mainTicketDate = mainTicket && new Date(mainTicket.checkinTimestamp);
 
   async function newTicketHandler() {
-    const response = await fetch('/api', {
+    const response = await fetch('/api/tickets', {
       method: 'POST',
     });
     const data = (await response.json()) as TicketResponseBodyPost;
@@ -43,13 +44,9 @@ export default function HomePageClient(props: Props) {
     setTickets([...tickets]);
   }
 
-  useEffect(() => {
-    tickets[0] && jsBarcode(canvasRef.current, tickets[0].barcodeId);
-  }, [tickets]);
-
   return (
     <>
-      <Container sx={{ overflow: 'scroll' }} component="aside">
+      <Container sx={{ overflow: 'scroll' }}>
         {[...tickets]
           .sort(
             (a, b) =>
@@ -58,9 +55,12 @@ export default function HomePageClient(props: Props) {
           .map((ticket) => {
             const ticketDate = new Date(ticket.checkinTimestamp);
             return (
-              <Paper elevation={1} square={true}>
+              <Paper
+                elevation={1}
+                square={true}
+                key={`sidebar-ticket-${ticket.id}`}
+              >
                 <Button
-                  key={`sidebar-ticket-${ticket.id}`}
                   sx={{ color: 'text.primary', width: '20vw' }}
                   onClick={() => activateTicket(ticket.id)}
                 >
@@ -71,26 +71,19 @@ export default function HomePageClient(props: Props) {
             );
           })}
       </Container>
-      <main>
+      <Container>
         <Box
-          sx={{ width: '70vw' }}
+          sx={{ width: '60vw' }}
           display="flex"
           justifyContent="center"
           alignItems="center"
           flexDirection="column"
           gap="10px"
         >
-          <Box
-            sx={{
-              p: 10,
-              border: '1px solid grey',
-              width: '50vw',
-            }}
-            display="flex"
-            justifyContent="center"
-          >
-            <canvas ref={canvasRef} />
-          </Box>
+          <BarcodeCanvas barcodeId={mainTicket?.barcodeId} />
+          <Typography variant="h5">
+            Barcode Id: {mainTicket?.barcodeId || 'Create A Ticket'}
+          </Typography>
           <Box
             display="flex"
             justifyContent="space-between"
@@ -115,7 +108,7 @@ export default function HomePageClient(props: Props) {
           </Box>
           {error && <Alert severity="error">{error}</Alert>}
         </Box>
-      </main>
+      </Container>
     </>
   );
 }

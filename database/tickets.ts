@@ -25,3 +25,21 @@ export const createTicket = cache(async (barcodeId: string) => {
 
   return ticket;
 });
+
+export const getTicketByBarcodeId = cache(async (barcodeId: string) => {
+  const [ticket] = await sql<Ticket[]>`
+    SELECT
+      *
+    FROM
+      tickets
+    WHERE
+      barcode_id = ${barcodeId}
+  `;
+  return ticket;
+});
+
+export async function getServerTime() {
+  const [serverTime] = await sql<{ now: string }[]>` SELECT NOW()::timestamp`;
+
+  return serverTime;
+}
