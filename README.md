@@ -4,11 +4,11 @@
 
 ![image](https://github.com/Josehower/senseven-spa/assets/61600906/294a21ab-f259-485d-863f-a53b7cf359b2)
 
-- Calculate the price based on visitor time and validate payment
+- Calculate the price based on visitor time and validate payments
 
 ![image](https://github.com/Josehower/senseven-spa/assets/61600906/765ce029-bba0-47c2-b398-30632350253d)
 
-## Tecnologies
+## Technologies
 
 - Next.js
 - PostgreSQL
