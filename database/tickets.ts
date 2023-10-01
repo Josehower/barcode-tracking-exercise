@@ -38,6 +38,26 @@ export const getTicketByBarcodeId = cache(async (barcodeId: string) => {
   return ticket;
 });
 
+export const checkoutTicketByBarcodeId = cache(
+  async (barcodeId: string, paymentMethod: Ticket['paymentMethod']) => {
+    if (!paymentMethod) return;
+
+    const [ticket] = await sql<Ticket[]>`
+      UPDATE tickets
+      SET
+        billing_timestamp = NOW(),
+        payment_method = ${paymentMethod}
+      WHERE
+       barcode_id = ${barcodeId}
+      AND
+       billing_timestamp IS NULL
+      RETURNING *
+    `;
+
+    return ticket;
+  },
+);
+
 export async function getServerTime() {
   const [serverTime] = await sql<{ now: string }[]>` SELECT NOW()::timestamp`;
 

@@ -19,7 +19,8 @@ type Props = { serverTime: string };
 
 export default function CheckoutPageClient(props: Props) {
   const [barcodeIdInput, setBarCodeIdInput] = useState('');
-  const [paymentMetodInput, setPaymentMetodInput] = useState('Cash');
+  const [paymentMetodInput, setPaymentMetodInput] =
+    useState<NonNullable<Ticket['paymentMethod']>>('CASH');
   const [ticket, setTicekt] = useState<Ticket>();
   const [error, setError] = useState<string>();
   const ticketDate = ticket && new Date(ticket.checkinTimestamp);
@@ -43,6 +44,35 @@ export default function CheckoutPageClient(props: Props) {
     setTicekt(data.ticket);
     setError('');
   }
+
+  async function payTicketHandler(paymentMethod: string) {
+    if (
+      !(
+        paymentMethod === 'DEBIT' ||
+        paymentMethod === 'CREDIT' ||
+        paymentMethod === 'CASH'
+      )
+    ) {
+      setError('Invalid payment Method');
+      return;
+    }
+
+    // TODO: update the api to use request.body
+    const response = await fetch(
+      `/api/tickets/${barcodeIdInput}?method=${paymentMetodInput}`,
+      { method: 'PUT' },
+    );
+    const data = (await response.json()) as TicketIdResponseBodyPost;
+
+    if ('error' in data) {
+      setError(data.error);
+      return;
+    }
+
+    setTicekt(data.ticket);
+    setError('');
+  }
+
   return (
     <Box display="flex" flexDirection="column" gap="1rem" sx={{ p: 3 }}>
       <Box
@@ -97,7 +127,10 @@ export default function CheckoutPageClient(props: Props) {
             <Typography>Hours: {timeDifference.getHours()}</Typography>
             ----------------------------------------
             <Typography>
-              Total Price: € {calculatePrice(timeDifference.getHours())}
+              Total Price:{' '}
+              {ticket.billingTimestamp
+                ? `€0 (Ticket Payed with ${ticket.paymentMethod?.toLocaleLowerCase()})`
+                : `€ ${calculatePrice(timeDifference.getHours())}`}
             </Typography>
             <InputLabel
               id="payment-method-label"
@@ -110,21 +143,20 @@ export default function CheckoutPageClient(props: Props) {
               id="payment-method"
               value={paymentMetodInput}
               onChange={(event) => {
-                setPaymentMetodInput(event.target.value);
+                setPaymentMetodInput(
+                  event.target.value as NonNullable<Ticket['paymentMethod']>,
+                );
               }}
             >
-              <MenuItem value={'Debit Card'}>Debit Card</MenuItem>
-              <MenuItem value={'Credit Card'}>Credit Card</MenuItem>
-              <MenuItem value={'Cash'}>Cash</MenuItem>
+              <MenuItem value={'DEBIT'}>Debit Card</MenuItem>
+              <MenuItem value={'CREDIT'}>Credit Card</MenuItem>
+              <MenuItem value={'CASH'}>Cash</MenuItem>
             </Select>
             <Button
+              disabled={!!ticket.billingTimestamp}
               variant="contained"
               sx={{ color: 'text.secondary' }}
-              onClick={() =>
-                alert(
-                  `Ticket ${ticket.barcodeId} has been payed with ${paymentMetodInput}`,
-                )
-              }
+              onClick={() => payTicketHandler(paymentMetodInput)}
             >
               Pay Ticket
             </Button>
