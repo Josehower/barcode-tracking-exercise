@@ -23,10 +23,10 @@
 ## Setup Guide
 
 - Clone The repo
-- setup a new Postgres database
-- update values on `.env` file following `.env.exmple` template
-- install dependencies with `pnpm install`
-- run with `pnpm dev`
+- Create a new Postgres database
+- Update values on `.env` file following `.env.exmple` template
+- Install dependencies with `pnpm install`
+- Run with `pnpm dev`
 
 ## Databse Schema Design:
 
