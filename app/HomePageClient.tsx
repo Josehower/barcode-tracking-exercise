@@ -8,8 +8,7 @@ import {
   Paper,
   Typography,
 } from '@mui/material';
-import jsBarcode from 'jsbarcode';
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import BarcodeCanvas from '../components/BarcodeCanvas';
 import { Ticket } from '../migrations/create-table-tickets';
 import { TicketResponseBodyPost } from './api/tickets/route';
