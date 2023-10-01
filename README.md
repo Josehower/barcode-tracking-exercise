@@ -36,10 +36,10 @@
 
 ## Commit History:
 
-- [Initial commit](https://github.com/Josehower/senseven-spa/tree/08921eb1df64dc2f88c0f60e9a1b89b532776851)
-- [Task 1 commit](https://github.com/Josehower/senseven-spa/tree/d24cf9aa6ea075b4da547de4964ca0a1b2b4c288)
-- [Task 2 commit](https://github.com/Josehower/senseven-spa/tree/7b210351908030059b5925383e4c88db0363ed60)
-- [task 3 commit](https://github.com/Josehower/senseven-spa/tree/2ce9fec732cc93a24d1af64db427c365f8c82667)
+- [Initial](https://github.com/Josehower/senseven-spa/tree/08921eb1df64dc2f88c0f60e9a1b89b532776851)
+- [Task 1](https://github.com/Josehower/senseven-spa/tree/d24cf9aa6ea075b4da547de4964ca0a1b2b4c288)
+- [Task 2](https://github.com/Josehower/senseven-spa/tree/7b210351908030059b5925383e4c88db0363ed60)
+- [Task 3](https://github.com/Josehower/senseven-spa/tree/2ce9fec732cc93a24d1af64db427c365f8c82667)
 
 # Credits
 
