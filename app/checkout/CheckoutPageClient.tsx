@@ -33,7 +33,7 @@ export default function CheckoutPageClient(props: Props) {
 
   async function searchTicketHandler(barcode: string) {
     if (!barcode) {
-      setError('Plase Provide a valid barcode-id');
+      setError('Plase provide a valid barcode-id');
       return;
     }
 
@@ -57,7 +57,7 @@ export default function CheckoutPageClient(props: Props) {
         paymentMethod === 'CASH'
       )
     ) {
-      setError('Invalid payment Method');
+      setError('Invalid payment method');
       return;
     }
 
