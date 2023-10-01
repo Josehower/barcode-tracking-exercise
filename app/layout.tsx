@@ -29,10 +29,6 @@ export default function RootLayout({
                 >
                   SensevenSpa
                 </Typography>
-                <Typography
-                  sx={{ color: '#405861', ml: 'auto' }}
-                  variant="body1"
-                ></Typography>
               </Link>
               <Link href="/checkout" color="secondary" sx={{ ml: 'auto' }}>
                 Checkout
