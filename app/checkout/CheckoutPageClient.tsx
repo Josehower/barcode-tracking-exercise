@@ -23,6 +23,7 @@ export default function CheckoutPageClient(props: Props) {
     useState<NonNullable<Ticket['paymentMethod']>>('CASH');
   const [ticket, setTicekt] = useState<Ticket>();
   const [error, setError] = useState<string>();
+
   const ticketDate = ticket && new Date(ticket.checkinTimestamp);
   const serverDate = new Date(props.serverTime);
   const timeDifference = ticketDate && new Date(+serverDate - +ticketDate);
