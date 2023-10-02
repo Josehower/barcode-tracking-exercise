@@ -14,6 +14,7 @@ import BarcodeCanvas from '../../components/BarcodeCanvas';
 import { TicketWithBillings } from '../../database/tickets';
 import { Ticket } from '../../migrations/0-create-table-tickets';
 import { PaymentMethod } from '../../migrations/2-insert-payment-methods';
+import { Billing } from '../../migrations/3-create-table-billings';
 import { calculatePrice } from '../../util/price';
 import { BillingsResponseBodyPost } from '../api/billings/route';
 import { TicketIdResponseBodyGet } from '../api/tickets/[barcodeId]/route';
@@ -26,13 +27,10 @@ export default function CheckoutPageClient(props: Props) {
     PaymentMethod['id']
   >(props.supportedPaymentMethods[0]!.id);
 
-  // FIX: create TicketWithBilling
   const [ticket, setTicket] = useState<TicketWithBillings>();
   const [error, setError] = useState<string>();
 
-  const ticketDate = ticket && new Date(ticket.checkinTimestamp);
   const serverDate = new Date(props.serverTime);
-  const timeDifference = ticketDate && new Date(+serverDate - +ticketDate);
   const mostRecentBilling = ticket?.billings.reduce((previous, current) => {
     if (!previous) return undefined;
 
@@ -43,6 +41,11 @@ export default function CheckoutPageClient(props: Props) {
 
     return mostRecent;
   }, ticket?.billings[0]);
+
+  const isDoorClosed =
+    !!mostRecentBilling &&
+    +serverDate <
+      +new Date(mostRecentBilling.billingTimestamp) + 1000 * 60 * 15;
 
   async function searchTicketHandler(barcode: string) {
     if (!barcode) {
@@ -67,11 +70,11 @@ export default function CheckoutPageClient(props: Props) {
   async function payTicketHandler(
     ticketId: Ticket['id'],
     paymentMethodId: PaymentMethod['id'],
+    amount: Billing['amount'],
   ) {
-    // TODO: update the api to use request.body
     const response = await fetch('/api/billings', {
       method: 'POST',
-      body: JSON.stringify({ ticketId, paymentMethodId }),
+      body: JSON.stringify({ ticketId, paymentMethodId, amount }),
     });
     const data = (await response.json()) as BillingsResponseBodyPost;
 
@@ -112,7 +115,7 @@ export default function CheckoutPageClient(props: Props) {
       </Box>
       {error && <Alert severity="error">{error}</Alert>}
 
-      {timeDifference && (
+      {ticket && (
         <Box
           sx={{
             width: '90vw',
@@ -130,19 +133,24 @@ export default function CheckoutPageClient(props: Props) {
             alignItems="left"
             gap="0.5rem"
           >
+            <Typography>Starting Time: {ticket.checkinTimestamp}</Typography>
+            <Typography>Current Time: {props.serverTime}</Typography>
+            {mostRecentBilling && (
+              <Typography>
+                Last Payment Time: {mostRecentBilling.billingTimestamp}
+                {' With '}
+                {mostRecentBilling.paymentMethod}
+              </Typography>
+            )}
             <Typography>
-              Starting Time: {ticketDate?.getHours()}:{ticketDate?.getMinutes()}
+              Hours:{' '}
+              {new Date(
+                +serverDate - +new Date(ticket.checkinTimestamp),
+              ).getHours()}
             </Typography>
-            <Typography>
-              Current Time: {serverDate?.getHours()}:{serverDate?.getMinutes()}
-            </Typography>
-            <Typography>Hours: {timeDifference.getHours()}</Typography>
             ----------------------------------------
             <Typography>
-              Total Price:
-              {mostRecentBilling
-                ? `€0 (Ticket Payed with ${mostRecentBilling.paymentMethod})`
-                : `€ ${calculatePrice(timeDifference.getHours())}`}
+              Total Price: {calculatePrice(ticket, props.serverTime)}
             </Typography>
             <InputLabel
               id="payment-method-label"
@@ -169,19 +177,17 @@ export default function CheckoutPageClient(props: Props) {
                 );
               })}
             </Select>
-            {mostRecentBilling?.billingTimestamp}
-            <br />
-            {props.serverTime}
             <Button
-              disabled={
-                mostRecentBilling &&
-                +new Date(mostRecentBilling?.billingTimestamp) +
-                  15 * 60 * 1000 <
-                  +serverDate
-              }
+              disabled={isDoorClosed}
               variant="contained"
               sx={{ color: 'text.secondary' }}
-              onClick={() => payTicketHandler(ticket.id, paymentMetodInput)}
+              onClick={() =>
+                payTicketHandler(
+                  ticket.id,
+                  paymentMetodInput,
+                  calculatePrice(ticket, props.serverTime),
+                )
+              }
             >
               Pay Ticket
             </Button>

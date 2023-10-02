@@ -1,5 +1,6 @@
 import { cache } from 'react';
 import { Ticket } from '../migrations/0-create-table-tickets';
+import { timeFormatString } from '../util/time';
 import { ClientBilling } from './billings';
 import { sql } from './connect';
 
@@ -12,8 +13,8 @@ export const getTickets = cache(async () => {
     SELECT
       id,
       barcode_id,
-      TO_CHAR(checkin_timestamp, 'YYYY/MM/DD HH24:MM:SS') as checkin_timestamp,
-      TO_CHAR(checkout_timestamp, 'YYYY/MM/DD HH24:MM:SS') as checkout_timestamp
+      TO_CHAR(checkin_timestamp, ${timeFormatString}) as checkin_timestamp,
+      TO_CHAR(checkout_timestamp, ${timeFormatString}) as checkout_timestamp
     FROM tickets
  `;
 
@@ -25,8 +26,8 @@ export const getTicketById = cache(async (ticketId: Ticket['id']) => {
     SELECT
       id,
       barcode_id,
-      TO_CHAR(checkin_timestamp, 'YYYY/MM/DD HH24:MM:SS') as checkin_timestamp,
-      TO_CHAR(checkout_timestamp, 'YYYY/MM/DD HH24:MM:SS') as checkout_timestamp
+      TO_CHAR(checkin_timestamp, ${timeFormatString}) as checkin_timestamp,
+      TO_CHAR(checkout_timestamp, ${timeFormatString}) as checkout_timestamp
     FROM
       tickets
     WHERE
@@ -49,8 +50,8 @@ export const createTicket = cache(async (barcodeId: Ticket['barcodeId']) => {
     RETURNING
       id,
       barcode_id,
-      TO_CHAR(checkin_timestamp, 'YYYY/MM/DD HH24:MM:SS') as checkin_timestamp,
-      TO_CHAR(checkout_timestamp, 'YYYY/MM/DD HH24:MM:SS') as checkout_timestamp
+      TO_CHAR(checkin_timestamp, ${timeFormatString}) as checkin_timestamp,
+      TO_CHAR(checkout_timestamp, ${timeFormatString}) as checkout_timestamp
 `;
 
   return ticket;
@@ -62,8 +63,8 @@ export const getTicketWithBillingsByBarcodeId = cache(
       SELECT
         id,
         barcode_id,
-        TO_CHAR(checkin_timestamp, 'YYYY/MM/DD HH24:MM:SS') as checkin_timestamp,
-        TO_CHAR(checkout_timestamp, 'YYYY/MM/DD HH24:MM:SS') as checkout_timestamp
+        TO_CHAR(checkin_timestamp, ${timeFormatString}) as checkin_timestamp,
+        TO_CHAR(checkout_timestamp, ${timeFormatString}) as checkout_timestamp
       FROM
         tickets
       WHERE
@@ -75,8 +76,9 @@ export const getTicketWithBillingsByBarcodeId = cache(
     const billings = await sql<ClientBilling[]>`
       SELECT
         b.id,
-        TO_CHAR(b.billing_timestamp, 'YYYY/MM/DD HH24:MM:SS') as billing_timestamp,
+        TO_CHAR(b.billing_timestamp, ${timeFormatString}) as billing_timestamp,
         b.ticket_id,
+        b.amount,
         p.name as payment_method
       FROM
         billings as b,
@@ -96,7 +98,7 @@ export const getTicketWithBillingsByBarcodeId = cache(
 export async function getServerTime() {
   const [serverTime] = await sql<{ now: string }[]>`
     SELECT
-      TO_CHAR(NOW(), 'YYYY/MM/DD HH24:MM:SS') as now;
+      TO_CHAR(NOW(), ${timeFormatString}) as now;
   `;
 
   console.log(serverTime);

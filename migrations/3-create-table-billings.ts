@@ -7,6 +7,7 @@ export type Billing = {
   billingTimestamp: string;
   ticketId: Ticket['id'];
   paymentMethodId: PaymentMethod['id'];
+  amount: number;
 };
 
 export async function up(sql: Sql) {
@@ -15,7 +16,8 @@ export async function up(sql: Sql) {
       id integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
       billing_timestamp timestamptz NOT NULL DEFAULT NOW(),
       ticket_id integer NOT NULL REFERENCES tickets (id) ON DELETE CASCADE,
-      payment_method_id integer NOT NULL REFERENCES payment_methods (id) ON DELETE CASCADE
+      payment_method_id integer NOT NULL REFERENCES payment_methods (id) ON DELETE CASCADE,
+      amount integer
     )
   `;
 }

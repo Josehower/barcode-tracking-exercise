@@ -10,6 +10,7 @@ export type BillingsResponseBodyPost = { billing: ClientBilling } | ApiError;
 const billingInputSchema = z.object({
   ticketId: z.number(),
   paymentMethodId: z.number(),
+  amount: z.number(),
 });
 
 export async function POST(
@@ -43,7 +44,11 @@ export async function POST(
   }
 
   // query the database to get all the animals
-  const billing = await createBilling(result.data.ticketId, paymentMethod.id);
+  const billing = await createBilling(
+    result.data.ticketId,
+    paymentMethod.id,
+    result.data.amount,
+  );
 
   console.log(billing?.billingTimestamp);
 
