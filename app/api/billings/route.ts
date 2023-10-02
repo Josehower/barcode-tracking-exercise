@@ -43,7 +43,6 @@ export async function POST(
     );
   }
 
-  // query the database to get all the animals
   const billing = await createBilling(
     result.data.ticketId,
     paymentMethod.id,
