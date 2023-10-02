@@ -169,11 +169,15 @@ export default function CheckoutPageClient(props: Props) {
                 );
               })}
             </Select>
+            {mostRecentBilling?.billingTimestamp}
+            <br />
+            {props.serverTime}
             <Button
               disabled={
                 mostRecentBilling &&
-                +new Date(mostRecentBilling?.billingTimestamp) <
-                  +serverDate + 15 * 60 * 1000
+                +new Date(mostRecentBilling?.billingTimestamp) +
+                  15 * 60 * 1000 <
+                  +serverDate
               }
               variant="contained"
               sx={{ color: 'text.secondary' }}

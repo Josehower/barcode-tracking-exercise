@@ -16,7 +16,11 @@ export const createBilling = cache(
           (ticket_id, payment_method_id)
         VALUES
           (${ticketId}, ${paymentMetodId})
-        RETURNING *
+        RETURNING
+          id,
+          TO_CHAR(billing_timestamp, 'YYYY/MM/DD HH24:MM:SS') as billing_timestamp,
+          ticket_id,
+          payment_method_id
     `;
 
       return billing;

@@ -12,8 +12,8 @@ export async function up(sql: Sql) {
     CREATE TABLE tickets (
       id integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
       barcode_id varchar(16) NOT NULL unique,
-      checkin_timestamp varchar(30) NOT NULL DEFAULT NOW(),
-      checkout_timestamp varchar(30)
+      checkin_timestamp timestamptz NOT NULL DEFAULT NOW(),
+      checkout_timestamp timestamptz
     )
   `;
 }

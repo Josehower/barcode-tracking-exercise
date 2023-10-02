@@ -45,6 +45,8 @@ export async function POST(
   // query the database to get all the animals
   const billing = await createBilling(result.data.ticketId, paymentMethod.id);
 
+  console.log(billing?.billingTimestamp);
+
   if (!billing) {
     if (!(await getTicketById(result.data.ticketId))) {
       return NextResponse.json(

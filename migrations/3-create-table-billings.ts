@@ -13,7 +13,7 @@ export async function up(sql: Sql) {
   await sql`
     CREATE TABLE billings (
       id integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-      billing_timestamp varchar(30) NOT NULL DEFAULT NOW(),
+      billing_timestamp timestamptz NOT NULL DEFAULT NOW(),
       ticket_id integer NOT NULL REFERENCES tickets (id) ON DELETE CASCADE,
       payment_method_id integer NOT NULL REFERENCES payment_methods (id) ON DELETE CASCADE
     )

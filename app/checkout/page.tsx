@@ -5,7 +5,7 @@ import CheckoutPageClient from './CheckoutPageClient';
 export default async function CheckoutPage() {
   const serverTime = await getServerTime();
   const supportedPaymentMethods = await getPaymentMethods();
-
+  console.log(serverTime);
   if (!serverTime) {
     throw new Error('Postgres database server Time Is Not Defined');
   }
