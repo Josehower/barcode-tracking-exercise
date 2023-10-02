@@ -1,6 +1,11 @@
 import { cache } from 'react';
-import { Ticket } from '../migrations/create-table-tickets';
+import { Ticket } from '../migrations/0-create-table-tickets';
+import { ClientBilling } from './billings';
 import { sql } from './connect';
+
+export type TicketWithBillings = Ticket & {
+  billings: ClientBilling[];
+};
 
 export const getTickets = cache(async () => {
   const tickets = await sql<Ticket[]>`
@@ -10,7 +15,20 @@ export const getTickets = cache(async () => {
   return tickets;
 });
 
-export const createTicket = cache(async (barcodeId: string) => {
+export const getTicketById = cache(async (ticketId: Ticket['id']) => {
+  const [ticket] = await sql<Ticket[]>`
+    SELECT
+      *
+    FROM
+      tickets
+    WHERE
+      id = ${ticketId}
+ `;
+
+  return ticket;
+});
+
+export const createTicket = cache(async (barcodeId: Ticket['barcodeId']) => {
   if (barcodeId.length !== 16) return undefined;
 
   const [ticket] = await sql<Ticket[]>`
@@ -26,8 +44,9 @@ export const createTicket = cache(async (barcodeId: string) => {
   return ticket;
 });
 
-export const getTicketByBarcodeId = cache(async (barcodeId: string) => {
-  const [ticket] = await sql<Ticket[]>`
+export const getTicketWithBillingsByBarcodeId = cache(
+  async (barcodeId: string): Promise<TicketWithBillings | undefined> => {
+    const [ticket] = await sql<Ticket[]>`
     SELECT
       *
     FROM
@@ -35,26 +54,27 @@ export const getTicketByBarcodeId = cache(async (barcodeId: string) => {
     WHERE
       barcode_id = ${barcodeId}
   `;
-  return ticket;
-});
 
-export const checkoutTicketByBarcodeId = cache(
-  async (barcodeId: string, paymentMethod: Ticket['paymentMethod']) => {
-    if (!paymentMethod) return;
+    if (!ticket) return;
 
-    const [ticket] = await sql<Ticket[]>`
-      UPDATE tickets
-      SET
-        billing_timestamp = NOW(),
-        payment_method = ${paymentMethod}
-      WHERE
-       barcode_id = ${barcodeId}
-      AND
-       billing_timestamp IS NULL
-      RETURNING *
+    const billings = await sql<ClientBilling[]>`
+    SELECT
+      b.id,
+      b.billing_timestamp,
+      b.ticket_id,
+      p.name as payment_method
+    FROM
+      billings as b,
+      payment_methods as p
+    WHERE
+      b.ticket_id = ${ticket.id}
+    AND
+    b.payment_method_id = p.id
     `;
 
-    return ticket;
+    console.log(billings);
+
+    return { ...ticket, billings: billings };
   },
 );
 

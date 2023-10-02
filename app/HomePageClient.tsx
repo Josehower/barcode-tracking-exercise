@@ -10,7 +10,7 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 import BarcodeCanvas from '../components/BarcodeCanvas';
-import { Ticket } from '../migrations/create-table-tickets';
+import { Ticket } from '../migrations/0-create-table-tickets';
 import { TicketResponseBodyPost } from './api/tickets/route';
 
 type Props = { tickets: Ticket[] };
