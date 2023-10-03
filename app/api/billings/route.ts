@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { ClientBilling, createBilling } from '../../../database/billings';
+import {
+  ClientBilling,
+  createBilling,
+  getRecentBillingsCountByTicketId,
+} from '../../../database/billings';
 import { getPaymentMethodById } from '../../../database/paymentMethods';
 import { getTicketById } from '../../../database/tickets';
 import { ApiError } from '../tickets/route';
@@ -29,6 +33,15 @@ export async function POST(
     );
   }
 
+  if ((await getRecentBillingsCountByTicketId(result.data.ticketId)) !== 0) {
+    return NextResponse.json(
+      {
+        error: 'Last bill is still valid',
+      },
+      { status: 404 },
+    );
+  }
+
   const paymentMethod = await getPaymentMethodById(result.data.paymentMethodId);
 
   if (!paymentMethod) {
@@ -52,7 +65,7 @@ export async function POST(
         {
           error: 'The billing data provided is invalid',
         },
-        { status: 404 },
+        { status: 400 },
       );
     }
 

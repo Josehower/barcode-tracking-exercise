@@ -9,6 +9,23 @@ export type ClientBilling = Omit<Billing, 'paymentMethod'> & {
   paymentMethod: PaymentMethod['name'];
 };
 
+export const getRecentBillingsCountByTicketId = cache(
+  async (ticketId: Ticket['id']) => {
+    const [{ count }] = await sql<[{ count: number }]>`
+  SELECT
+    count(*)::int
+  FROM
+    billings
+  WHERE
+    (billing_timestamp > (NOW() - INTERVAL '15 minutes'))
+  AND
+    ticket_id = ${ticketId};
+`;
+
+    return count;
+  },
+);
+
 export const createBilling = cache(
   async (
     ticketId: Ticket['id'],
@@ -24,10 +41,11 @@ export const createBilling = cache(
         RETURNING
           *,
           TO_CHAR(billing_timestamp, ${timeFormatString}) as billing_timestamp
-    `;
+      `;
 
       return billing;
-    } catch {
+    } catch (error) {
+      console.error(error);
       return undefined;
     }
   },
