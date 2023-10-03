@@ -16,6 +16,7 @@ import { Ticket } from '../../migrations/0-create-table-tickets';
 import { PaymentMethod } from '../../migrations/2-insert-payment-methods';
 import { Billing } from '../../migrations/3-create-table-billings';
 import { calculatePrice } from '../../util/price';
+import { msToFullHours } from '../../util/time';
 import { BillingsResponseBodyPost } from '../api/billings/route';
 import { TicketIdResponseBodyGet } from '../api/tickets/[barcodeId]/route';
 
@@ -30,21 +31,12 @@ export default function CheckoutPageClient(props: Props) {
   const [ticket, setTicket] = useState<TicketWithBillings>();
   const [error, setError] = useState<string>();
 
-  const serverDate = new Date(props.serverTime);
-  const mostRecentBilling = ticket?.billings.reduce((previous, current) => {
-    if (!previous) return undefined;
-
-    const mostRecent =
-      +new Date(previous.billingTimestamp) > +new Date(current.billingTimestamp)
-        ? previous
-        : current;
-
-    return mostRecent;
-  }, ticket?.billings[0]);
+  const serverDateInMs = +new Date(props.serverTime);
+  const [mostRecentBilling] = ticket ? ticket.billingHistory.slice(-1) : [];
 
   const isDoorClosed =
     !!mostRecentBilling &&
-    +serverDate <
+    serverDateInMs <
       +new Date(mostRecentBilling.billingTimestamp) + 1000 * 60 * 15;
 
   async function searchTicketHandler(barcode: string) {
@@ -82,7 +74,10 @@ export default function CheckoutPageClient(props: Props) {
     }
 
     ticket &&
-      setTicket({ ...ticket, billings: [data.billing, ...ticket?.billings] });
+      setTicket({
+        ...ticket,
+        billingHistory: [...ticket.billingHistory, data.bill],
+      });
     setError('');
   }
 
@@ -142,9 +137,9 @@ export default function CheckoutPageClient(props: Props) {
             )}
             <Typography>
               Hours:{' '}
-              {new Date(
-                +serverDate - +new Date(ticket.checkinTimestamp),
-              ).getHours()}
+              {msToFullHours(
+                serverDateInMs - +new Date(ticket.checkinTimestamp),
+              )}
             </Typography>
             ----------------------------------------
             <Typography>

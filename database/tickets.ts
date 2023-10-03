@@ -5,7 +5,7 @@ import { ClientBilling } from './billings';
 import { sql } from './connect';
 
 export type TicketWithBillings = Ticket & {
-  billings: ClientBilling[];
+  billingHistory: ClientBilling[];
 };
 
 export const getTickets = cache(async () => {
@@ -75,10 +75,8 @@ export const getTicketWithBillingsByBarcodeId = cache(
 
     const billings = await sql<ClientBilling[]>`
       SELECT
-        b.id,
+        b.*,
         TO_CHAR(b.billing_timestamp, ${timeFormatString}) as billing_timestamp,
-        b.ticket_id,
-        b.amount,
         p.name as payment_method
       FROM
         billings as b,
@@ -87,9 +85,11 @@ export const getTicketWithBillingsByBarcodeId = cache(
         b.ticket_id = ${ticket.id}
       AND
         b.payment_method_id = p.id
+      ORDER BY
+        b.billing_timestamp ASC;
     `;
 
-    return { ...ticket, billings: billings };
+    return { ...ticket, billingHistory: billings };
   },
 );
 

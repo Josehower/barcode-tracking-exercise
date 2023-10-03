@@ -5,7 +5,7 @@ import { getPaymentMethodById } from '../../../database/paymentMethods';
 import { getTicketById } from '../../../database/tickets';
 import { ApiError } from '../tickets/route';
 
-export type BillingsResponseBodyPost = { billing: ClientBilling } | ApiError;
+export type BillingsResponseBodyPost = { bill: ClientBilling } | ApiError;
 
 const billingInputSchema = z.object({
   ticketId: z.number(),
@@ -40,13 +40,13 @@ export async function POST(
     );
   }
 
-  const billing = await createBilling(
+  const bill = await createBilling(
     result.data.ticketId,
     paymentMethod.id,
     result.data.amount,
   );
 
-  if (!billing) {
+  if (!bill) {
     if (!(await getTicketById(result.data.ticketId))) {
       return NextResponse.json(
         {
@@ -65,6 +65,6 @@ export async function POST(
   }
 
   return NextResponse.json({
-    billing: { ...billing, paymentMethod: paymentMethod.name },
+    bill: { ...bill, paymentMethod: paymentMethod.name },
   });
 }
