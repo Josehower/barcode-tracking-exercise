@@ -89,8 +89,6 @@ export const getTicketWithBillingsByBarcodeId = cache(
         b.payment_method_id = p.id
     `;
 
-    console.log(billings);
-
     return { ...ticket, billings: billings };
   },
 );
@@ -101,6 +99,5 @@ export async function getServerTime() {
       TO_CHAR(NOW(), ${timeFormatString}) as now;
   `;
 
-  console.log(serverTime);
   return serverTime;
 }

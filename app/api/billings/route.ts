@@ -18,12 +18,9 @@ export async function POST(
 ): Promise<NextResponse<BillingsResponseBodyPost>> {
   const body = await request.json();
 
-  // zod please verify the body matches my schema
   const result = billingInputSchema.safeParse(body);
 
   if (!result.success) {
-    // zod send you details about the error
-    // console.log(result.error);
     return NextResponse.json(
       {
         error: 'The billing data provided is invalid',
@@ -48,8 +45,6 @@ export async function POST(
     paymentMethod.id,
     result.data.amount,
   );
-
-  console.log(billing?.billingTimestamp);
 
   if (!billing) {
     if (!(await getTicketById(result.data.ticketId))) {

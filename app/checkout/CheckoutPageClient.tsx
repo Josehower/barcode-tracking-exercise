@@ -61,8 +61,6 @@ export default function CheckoutPageClient(props: Props) {
       return;
     }
 
-    console.log(data.ticket);
-
     setTicket(data.ticket);
     setError('');
   }
