@@ -3,7 +3,7 @@ import { Sql } from 'postgres';
 export type Ticket = {
   barcodeId: string;
   checkinTimestamp: string;
-  checkoutTimestamp?: string;
+  checkoutTimestamp: string | null;
 };
 
 export async function up(sql: Sql) {
