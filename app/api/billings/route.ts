@@ -40,7 +40,7 @@ export async function POST(
       {
         error: 'Last bill is still valid',
       },
-      { status: 404 },
+      { status: 403 },
     );
   }
 
