@@ -49,8 +49,7 @@ export const createTicket = cache(async (barcodeId: Ticket['barcodeId']) => {
       (SELECT count(*) FROM tickets) < 60
     RETURNING
       *,
-      TO_CHAR(checkin_timestamp, ${timeFormatString}) as checkin_timestamp,
-      TO_CHAR(checkout_timestamp, ${timeFormatString}) as checkout_timestamp
+      TO_CHAR(checkin_timestamp, ${timeFormatString}) as checkin_timestamp
 `;
 
   return ticket;
