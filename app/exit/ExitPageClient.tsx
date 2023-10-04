@@ -4,18 +4,15 @@ import {
   Box,
   Button,
   InputLabel,
-  MenuItem,
-  Select,
   TextField,
   Typography,
 } from '@mui/material';
 import { useState } from 'react';
 import BarcodeCanvas from '../../components/BarcodeCanvas';
 import { TicketWithBillings } from '../../database/tickets';
-import { PaymentMethod } from '../../migrations/2-insert-payment-methods';
 import { TicketIdResponseBodyGet } from '../api/tickets/[barcodeId]/route';
 
-type Props = { serverTime: string; supportedPaymentMethods: PaymentMethod[] };
+type Props = { serverTime: string };
 
 export default function ExitPageClient(props: Props) {
   const [barcodeIdInput, setBarCodeIdInput] = useState('');
@@ -88,11 +85,11 @@ export default function ExitPageClient(props: Props) {
         >
           <BarcodeCanvas barcodeId={ticket?.barcodeId} />
           <Typography>
-            {isLastBillingStillValid
+            {!mostRecentBilling
+              ? 'Please Issue A Payment - Door Is Closed'
+              : isLastBillingStillValid
               ? 'Ticket Accepet Thank you for your visit - Door Is Open'
-              : !!mostRecentBilling
-              ? 'Your last Bill has expired - Door Is Closed'
-              : 'Please issue a Payment - Door Is Closed'}
+              : 'Your last Bill has expired - Door Is Closed'}
           </Typography>
         </Box>
       )}
