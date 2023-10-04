@@ -34,7 +34,7 @@ export default function CheckoutPageClient(props: Props) {
   const serverDateInMs = +new Date(props.serverTime);
   const [mostRecentBilling] = ticket ? ticket.billingHistory.slice(-1) : [];
 
-  const isDoorClosed =
+  const isLastBillingStillValid =
     !!mostRecentBilling &&
     serverDateInMs <
       +new Date(mostRecentBilling.billingTimestamp) + 1000 * 60 * 15;
@@ -153,7 +153,7 @@ export default function CheckoutPageClient(props: Props) {
             </InputLabel>
             <Select
               labelId="payment-method-label"
-              disabled={isDoorClosed}
+              disabled={isLastBillingStillValid}
               id="payment-method"
               value={paymentMetodInput}
               onChange={(event) => {
@@ -172,7 +172,7 @@ export default function CheckoutPageClient(props: Props) {
               })}
             </Select>
             <Button
-              disabled={isDoorClosed}
+              disabled={isLastBillingStillValid}
               variant="contained"
               sx={{ color: 'text.secondary' }}
               onClick={() =>
