@@ -55,7 +55,7 @@ export const createTicket = cache(async (barcodeId: Ticket['barcodeId']) => {
   return ticket;
 });
 
-export const getTicketWithBillingsByBarcodeId = cache(
+export const getTicketWithBillingHistoryByBarcodeId = cache(
   async (barcodeId: string): Promise<TicketWithBillings | undefined> => {
     const [ticket] = await sql<Ticket[]>`
       SELECT

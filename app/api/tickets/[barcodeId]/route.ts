@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import {
-  getTicketWithBillingsByBarcodeId,
+  getTicketWithBillingHistoryByBarcodeId,
   TicketWithBillings,
 } from '../../../../database/tickets';
 import { Ticket } from '../../../../migrations/0-create-table-tickets';
@@ -28,7 +28,9 @@ export async function GET(
     );
   }
 
-  const ticketWithBillings = await getTicketWithBillingsByBarcodeId(barcodeId);
+  const ticketWithBillings = await getTicketWithBillingHistoryByBarcodeId(
+    barcodeId,
+  );
 
   if (!ticketWithBillings) {
     return NextResponse.json(
