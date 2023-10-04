@@ -11,33 +11,41 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 import BarcodeCanvas from '../../components/BarcodeCanvas';
-import { Ticket } from '../../migrations/create-table-tickets';
+import { TicketWithBillings } from '../../database/tickets';
+import { Ticket } from '../../migrations/0-create-table-tickets';
+import { PaymentMethod } from '../../migrations/2-insert-payment-methods';
+import { Billing } from '../../migrations/3-create-table-billings';
 import { calculatePrice } from '../../util/price';
-import {
-  TicketIdResponseBodyGet,
-  TicketIdResponseBodyPut,
-} from '../api/tickets/[barcodeId]/route';
+import { msToFullHours } from '../../util/time';
+import { BillingsResponseBodyPost } from '../api/billings/route';
+import { TicketIdResponseBodyGet } from '../api/tickets/[barcodeId]/route';
 
-type Props = { serverTime: string };
+type Props = { serverTime: string; supportedPaymentMethods: PaymentMethod[] };
 
 export default function CheckoutPageClient(props: Props) {
   const [barcodeIdInput, setBarCodeIdInput] = useState('');
-  const [paymentMetodInput, setPaymentMetodInput] =
-    useState<NonNullable<Ticket['paymentMethod']>>('CASH');
-  const [ticket, setTicekt] = useState<Ticket>();
+  const [paymentMetodInput, setPaymentMetodInput] = useState<
+    PaymentMethod['id']
+  >(props.supportedPaymentMethods[0]!.id);
+
+  const [ticket, setTicket] = useState<TicketWithBillings>();
   const [error, setError] = useState<string>();
 
-  const ticketDate = ticket && new Date(ticket.checkinTimestamp);
-  const serverDate = new Date(props.serverTime);
-  const timeDifference = ticketDate && new Date(+serverDate - +ticketDate);
+  const serverDateInMs = +new Date(props.serverTime);
+  const [mostRecentBilling] = ticket ? ticket.billingHistory.slice(-1) : [];
 
-  async function searchTicketHandler(barcode: string) {
-    if (!barcode) {
+  const isLastBillingStillValid =
+    !!mostRecentBilling &&
+    serverDateInMs <
+      +new Date(mostRecentBilling.billingTimestamp) + 1000 * 60 * 15;
+
+  async function searchTicketHandler(barcodeId: string) {
+    if (!barcodeId) {
       setError('Plase provide a valid barcode-id');
       return;
     }
 
-    const response = await fetch(`/api/tickets/${barcode}`);
+    const response = await fetch(`/api/tickets/${barcodeId}`);
     const data = (await response.json()) as TicketIdResponseBodyGet;
 
     if ('error' in data) {
@@ -45,35 +53,32 @@ export default function CheckoutPageClient(props: Props) {
       return;
     }
 
-    setTicekt(data.ticket);
+    setTicket(data.ticket);
     setError('');
   }
 
-  async function payTicketHandler(paymentMethod: string) {
-    if (
-      !(
-        paymentMethod === 'DEBIT' ||
-        paymentMethod === 'CREDIT' ||
-        paymentMethod === 'CASH'
-      )
-    ) {
-      setError('Invalid payment method');
-      return;
-    }
+  async function payTicketHandler(
+    ticketBarcodeId: Ticket['barcodeId'],
+    paymentMethodId: PaymentMethod['id'],
+    amount: Billing['amount'],
+  ) {
+    if (!ticket) return;
 
-    // TODO: update the api to use request.body
-    const response = await fetch(
-      `/api/tickets/${barcodeIdInput}?method=${paymentMetodInput}`,
-      { method: 'PUT' },
-    );
-    const data = (await response.json()) as TicketIdResponseBodyPut;
+    const response = await fetch('/api/billings', {
+      method: 'POST',
+      body: JSON.stringify({ ticketBarcodeId, paymentMethodId, amount }),
+    });
+    const data = (await response.json()) as BillingsResponseBodyPost;
 
     if ('error' in data) {
       setError(data.error);
       return;
     }
 
-    setTicekt(data.ticket);
+    setTicket({
+      ...ticket,
+      billingHistory: [...ticket.billingHistory, data.bill],
+    });
     setError('');
   }
 
@@ -104,7 +109,7 @@ export default function CheckoutPageClient(props: Props) {
       </Box>
       {error && <Alert severity="error">{error}</Alert>}
 
-      {timeDifference && (
+      {ticket && (
         <Box
           sx={{
             width: '90vw',
@@ -122,19 +127,24 @@ export default function CheckoutPageClient(props: Props) {
             alignItems="left"
             gap="0.5rem"
           >
+            <Typography>Starting Time: {ticket.checkinTimestamp}</Typography>
+            <Typography>Current Time: {props.serverTime}</Typography>
+            {mostRecentBilling && (
+              <Typography>
+                Last Payment Time: {mostRecentBilling.billingTimestamp}
+                {' With '}
+                {mostRecentBilling.paymentMethod}
+              </Typography>
+            )}
             <Typography>
-              Starting Time: {ticketDate?.getHours()}:{ticketDate?.getMinutes()}
+              Hours:{' '}
+              {msToFullHours(
+                serverDateInMs - +new Date(ticket.checkinTimestamp),
+              )}
             </Typography>
-            <Typography>
-              Current Time: {serverDate?.getHours()}:{serverDate?.getMinutes()}
-            </Typography>
-            <Typography>Hours: {timeDifference.getHours()}</Typography>
             ----------------------------------------
             <Typography>
-              Total Price:{' '}
-              {ticket.billingTimestamp
-                ? `€0 (Ticket Payed with ${ticket.paymentMethod?.toLocaleLowerCase()})`
-                : `€ ${calculatePrice(timeDifference.getHours())}`}
+              Total Price: {calculatePrice(ticket, props.serverTime)}
             </Typography>
             <InputLabel
               id="payment-method-label"
@@ -144,23 +154,35 @@ export default function CheckoutPageClient(props: Props) {
             </InputLabel>
             <Select
               labelId="payment-method-label"
+              disabled={isLastBillingStillValid}
               id="payment-method"
               value={paymentMetodInput}
               onChange={(event) => {
-                setPaymentMetodInput(
-                  event.target.value as NonNullable<Ticket['paymentMethod']>,
-                );
+                setPaymentMetodInput(event.target.value as number);
               }}
             >
-              <MenuItem value={'DEBIT'}>Debit Card</MenuItem>
-              <MenuItem value={'CREDIT'}>Credit Card</MenuItem>
-              <MenuItem value={'CASH'}>Cash</MenuItem>
+              {props.supportedPaymentMethods.map((paymentMethod) => {
+                return (
+                  <MenuItem
+                    key={`paymentMethod-option-${paymentMethod.id}`}
+                    value={paymentMethod.id}
+                  >
+                    {paymentMethod.name}
+                  </MenuItem>
+                );
+              })}
             </Select>
             <Button
-              disabled={!!ticket.billingTimestamp}
+              disabled={isLastBillingStillValid}
               variant="contained"
               sx={{ color: 'text.secondary' }}
-              onClick={() => payTicketHandler(paymentMetodInput)}
+              onClick={() =>
+                payTicketHandler(
+                  ticket.barcodeId,
+                  paymentMetodInput,
+                  calculatePrice(ticket, props.serverTime),
+                )
+              }
             >
               Pay Ticket
             </Button>

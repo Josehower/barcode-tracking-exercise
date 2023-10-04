@@ -10,7 +10,7 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 import BarcodeCanvas from '../components/BarcodeCanvas';
-import { Ticket } from '../migrations/create-table-tickets';
+import { Ticket } from '../migrations/0-create-table-tickets';
 import { TicketResponseBodyPost } from './api/tickets/route';
 
 type Props = { tickets: Ticket[] };
@@ -36,8 +36,10 @@ export default function HomePageClient(props: Props) {
     setTickets([data.ticket, ...tickets]);
   }
 
-  function activateTicket(id: number) {
-    const ticketIndex = tickets.findIndex((ticket) => ticket.id == id);
+  function activateTicket(barcodeId: string) {
+    const ticketIndex = tickets.findIndex(
+      (ticket) => ticket.barcodeId == barcodeId,
+    );
     ticketIndex !== -1 && tickets.unshift(tickets.splice(ticketIndex, 1)[0]!);
 
     setTickets([...tickets]);
@@ -57,11 +59,11 @@ export default function HomePageClient(props: Props) {
               <Paper
                 elevation={1}
                 square={true}
-                key={`sidebar-ticket-${ticket.id}`}
+                key={`sidebar-ticket-${ticket.barcodeId}`}
               >
                 <Button
                   sx={{ color: 'text.primary', width: '20vw' }}
-                  onClick={() => activateTicket(ticket.id)}
+                  onClick={() => activateTicket(ticket.barcodeId)}
                 >
                   {ticket.barcodeId} | {ticketDate.getHours()}:
                   {ticketDate.getMinutes()}
@@ -99,8 +101,9 @@ export default function HomePageClient(props: Props) {
             {mainTicket && (
               <Box display="flex" justifyContent="center">
                 <Typography>
-                  Start Time: {mainTicketDate!.getHours()}:
-                  {mainTicketDate!.getMinutes()}
+                  Start Time:{' '}
+                  {String(mainTicketDate!.getHours()).padStart(2, '0')}:
+                  {String(mainTicketDate!.getMinutes()).padStart(2, '0')}
                 </Typography>
               </Box>
             )}
