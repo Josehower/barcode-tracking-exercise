@@ -5,7 +5,7 @@ import { sql } from './connect';
 export const getPaymentMethods = cache(async () => {
   const paymentMethods = await sql<PaymentMethod[]>`
     SELECT * FROM payment_methods
- `;
+  `;
 
   return paymentMethods;
 });
@@ -13,13 +13,13 @@ export const getPaymentMethods = cache(async () => {
 export const getPaymentMethodById = cache(
   async (paymentMethodId: PaymentMethod['id']) => {
     const [paymentMethod] = await sql<PaymentMethod[]>`
-    SELECT
-      *
-    FROM
-      payment_methods
-    WHERE
-      id = ${paymentMethodId}
- `;
+      SELECT
+        *
+      FROM
+        payment_methods
+      WHERE
+        id = ${paymentMethodId}
+    `;
 
     return paymentMethod;
   },
