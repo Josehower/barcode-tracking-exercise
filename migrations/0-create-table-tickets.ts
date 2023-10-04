@@ -1,7 +1,6 @@
 import { Sql } from 'postgres';
 
 export type Ticket = {
-  id: number;
   barcodeId: string;
   checkinTimestamp: string;
   checkoutTimestamp?: string;
@@ -10,8 +9,7 @@ export type Ticket = {
 export async function up(sql: Sql) {
   await sql`
     CREATE TABLE tickets (
-      id integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-      barcode_id varchar(16) NOT NULL unique,
+      barcode_id varchar(16) PRIMARY KEY NOT NULL unique,
       checkin_timestamp timestamptz NOT NULL DEFAULT NOW(),
       checkout_timestamp timestamptz
     )

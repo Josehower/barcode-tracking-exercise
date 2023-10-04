@@ -5,7 +5,7 @@ import { PaymentMethod } from './2-insert-payment-methods';
 export type Billing = {
   id: number;
   billingTimestamp: string;
-  ticketId: Ticket['id'];
+  ticketId: Ticket['barcodeId'];
   paymentMethodId: PaymentMethod['id'];
   amount: number;
 };
@@ -15,7 +15,7 @@ export async function up(sql: Sql) {
     CREATE TABLE billings (
       id integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
       billing_timestamp timestamptz NOT NULL DEFAULT NOW(),
-      ticket_id integer NOT NULL REFERENCES tickets (id) ON DELETE CASCADE,
+      ticket_barcode_id varchar(16) NOT NULL REFERENCES tickets (barcode_id) ON DELETE CASCADE,
       payment_method_id integer NOT NULL REFERENCES payment_methods (id) ON DELETE CASCADE,
       amount integer
     )

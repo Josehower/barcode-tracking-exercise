@@ -11,8 +11,7 @@ export type TicketWithBillings = Ticket & {
 export const getTickets = cache(async () => {
   const tickets = await sql<Ticket[]>`
     SELECT
-      id,
-      barcode_id,
+      *,
       TO_CHAR(checkin_timestamp, ${timeFormatString}) as checkin_timestamp,
       TO_CHAR(checkout_timestamp, ${timeFormatString}) as checkout_timestamp
     FROM tickets
@@ -21,21 +20,22 @@ export const getTickets = cache(async () => {
   return tickets;
 });
 
-export const getTicketById = cache(async (ticketId: Ticket['id']) => {
-  const [ticket] = await sql<Ticket[]>`
+export const getTicketByBarcodeId = cache(
+  async (barcodeId: Ticket['barcodeId']) => {
+    const [ticket] = await sql<Ticket[]>`
     SELECT
-      id,
-      barcode_id,
+      *,
       TO_CHAR(checkin_timestamp, ${timeFormatString}) as checkin_timestamp,
       TO_CHAR(checkout_timestamp, ${timeFormatString}) as checkout_timestamp
     FROM
       tickets
     WHERE
-      id = ${ticketId}
+      barcode_id = ${barcodeId}
  `;
 
-  return ticket;
-});
+    return ticket;
+  },
+);
 
 export const createTicket = cache(async (barcodeId: Ticket['barcodeId']) => {
   if (barcodeId.length !== 16) return undefined;
@@ -48,8 +48,7 @@ export const createTicket = cache(async (barcodeId: Ticket['barcodeId']) => {
     WHERE
       (SELECT count(*) FROM tickets) < 60
     RETURNING
-      id,
-      barcode_id,
+      *,
       TO_CHAR(checkin_timestamp, ${timeFormatString}) as checkin_timestamp,
       TO_CHAR(checkout_timestamp, ${timeFormatString}) as checkout_timestamp
 `;
@@ -61,8 +60,7 @@ export const getTicketWithBillingsByBarcodeId = cache(
   async (barcodeId: string): Promise<TicketWithBillings | undefined> => {
     const [ticket] = await sql<Ticket[]>`
       SELECT
-        id,
-        barcode_id,
+        *,
         TO_CHAR(checkin_timestamp, ${timeFormatString}) as checkin_timestamp,
         TO_CHAR(checkout_timestamp, ${timeFormatString}) as checkout_timestamp
       FROM
@@ -82,7 +80,7 @@ export const getTicketWithBillingsByBarcodeId = cache(
         billings as b,
         payment_methods as p
       WHERE
-        b.ticket_id = ${ticket.id}
+        b.ticket_barcode_id = ${ticket.barcodeId}
       AND
         b.payment_method_id = p.id
       ORDER BY

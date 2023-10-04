@@ -10,7 +10,7 @@ export type ClientBilling = Omit<Billing, 'paymentMethod'> & {
 };
 
 export const getRecentBillingsCountByTicketId = cache(
-  async (ticketId: Ticket['id']) => {
+  async (barcodeId: Ticket['barcodeId']) => {
     const [{ count }] = await sql<[{ count: number }]>`
   SELECT
     count(*)::int
@@ -19,7 +19,7 @@ export const getRecentBillingsCountByTicketId = cache(
   WHERE
     (billing_timestamp > (NOW() - INTERVAL '15 minutes'))
   AND
-    ticket_id = ${ticketId};
+    ticket_barcode_id = ${barcodeId};
 `;
 
     return count;
@@ -28,16 +28,16 @@ export const getRecentBillingsCountByTicketId = cache(
 
 export const createBilling = cache(
   async (
-    ticketId: Ticket['id'],
+    barcodeId: Ticket['barcodeId'],
     paymentMetodId: PaymentMethod['id'],
     amount: Billing['amount'],
   ) => {
     try {
       const [billing] = await sql<Billing[]>`
         INSERT INTO billings
-          (ticket_id, payment_method_id, amount)
+          (ticket_barcode_id, payment_method_id, amount)
         VALUES
-          (${ticketId}, ${paymentMetodId}, ${amount})
+          (${barcodeId}, ${paymentMetodId}, ${amount})
         RETURNING
           *,
           TO_CHAR(billing_timestamp, ${timeFormatString}) as billing_timestamp

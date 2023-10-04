@@ -39,13 +39,13 @@ export default function CheckoutPageClient(props: Props) {
     serverDateInMs <
       +new Date(mostRecentBilling.billingTimestamp) + 1000 * 60 * 15;
 
-  async function searchTicketHandler(barcode: string) {
-    if (!barcode) {
+  async function searchTicketHandler(barcodeId: string) {
+    if (!barcodeId) {
       setError('Plase provide a valid barcode-id');
       return;
     }
 
-    const response = await fetch(`/api/tickets/${barcode}`);
+    const response = await fetch(`/api/tickets/${barcodeId}`);
     const data = (await response.json()) as TicketIdResponseBodyGet;
 
     if ('error' in data) {
@@ -58,13 +58,13 @@ export default function CheckoutPageClient(props: Props) {
   }
 
   async function payTicketHandler(
-    ticketId: Ticket['id'],
+    ticketBarcodeId: Ticket['barcodeId'],
     paymentMethodId: PaymentMethod['id'],
     amount: Billing['amount'],
   ) {
     const response = await fetch('/api/billings', {
       method: 'POST',
-      body: JSON.stringify({ ticketId, paymentMethodId, amount }),
+      body: JSON.stringify({ ticketBarcodeId, paymentMethodId, amount }),
     });
     const data = (await response.json()) as BillingsResponseBodyPost;
 
@@ -153,6 +153,7 @@ export default function CheckoutPageClient(props: Props) {
             </InputLabel>
             <Select
               labelId="payment-method-label"
+              disabled={isDoorClosed}
               id="payment-method"
               value={paymentMetodInput}
               onChange={(event) => {
@@ -176,7 +177,7 @@ export default function CheckoutPageClient(props: Props) {
               sx={{ color: 'text.secondary' }}
               onClick={() =>
                 payTicketHandler(
-                  ticket.id,
+                  ticket.barcodeId,
                   paymentMetodInput,
                   calculatePrice(ticket, props.serverTime),
                 )

@@ -6,13 +6,13 @@ import {
   getRecentBillingsCountByTicketId,
 } from '../../../database/billings';
 import { getPaymentMethodById } from '../../../database/paymentMethods';
-import { getTicketById } from '../../../database/tickets';
+import { getTicketByBarcodeId } from '../../../database/tickets';
 import { ApiError } from '../tickets/route';
 
 export type BillingsResponseBodyPost = { bill: ClientBilling } | ApiError;
 
 const billingInputSchema = z.object({
-  ticketId: z.number(),
+  ticketBarcodeId: z.string(),
   paymentMethodId: z.number(),
   amount: z.number(),
 });
@@ -33,7 +33,9 @@ export async function POST(
     );
   }
 
-  if ((await getRecentBillingsCountByTicketId(result.data.ticketId)) !== 0) {
+  if (
+    (await getRecentBillingsCountByTicketId(result.data.ticketBarcodeId)) !== 0
+  ) {
     return NextResponse.json(
       {
         error: 'Last bill is still valid',
@@ -54,13 +56,13 @@ export async function POST(
   }
 
   const bill = await createBilling(
-    result.data.ticketId,
+    result.data.ticketBarcodeId,
     paymentMethod.id,
     result.data.amount,
   );
 
   if (!bill) {
-    if (!(await getTicketById(result.data.ticketId))) {
+    if (!(await getTicketByBarcodeId(result.data.ticketBarcodeId))) {
       return NextResponse.json(
         {
           error: 'The billing data provided is invalid',
