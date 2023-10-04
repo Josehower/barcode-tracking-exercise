@@ -62,6 +62,8 @@ export default function CheckoutPageClient(props: Props) {
     paymentMethodId: PaymentMethod['id'],
     amount: Billing['amount'],
   ) {
+    if (!ticket) return;
+
     const response = await fetch('/api/billings', {
       method: 'POST',
       body: JSON.stringify({ ticketBarcodeId, paymentMethodId, amount }),
@@ -73,11 +75,10 @@ export default function CheckoutPageClient(props: Props) {
       return;
     }
 
-    ticket &&
-      setTicket({
-        ...ticket,
-        billingHistory: [...ticket.billingHistory, data.bill],
-      });
+    setTicket({
+      ...ticket,
+      billingHistory: [...ticket.billingHistory, data.bill],
+    });
     setError('');
   }
 
