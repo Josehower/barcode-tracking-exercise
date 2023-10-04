@@ -158,7 +158,7 @@ export default function CheckoutPageClient(props: Props) {
               id="payment-method"
               value={paymentMetodInput}
               onChange={(event) => {
-                setPaymentMetodInput(Number(event.target.value));
+                setPaymentMetodInput(event.target.value as number);
               }}
             >
               {props.supportedPaymentMethods.map((paymentMethod) => {
