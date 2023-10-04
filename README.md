@@ -31,11 +31,9 @@
 
 ## Databse Schema Design:
 
-![image](https://github.com/Josehower/senseven-spa/assets/61600906/1b149c31-89f3-49d7-bb60-4ba992baf574)
+![image](https://github.com/Josehower/senseven-spa/assets/61600906/67fa60ae-0324-45a1-a828-6ef0e4144fef)
 
-⚠️ The schema was not fully implemented and was simplified for time constraints, please check [migrations to see current setup](https://github.com/Josehower/senseven-spa/blob/main/migrations/create-table-tickets.ts)
-
-## Commit History:
+## Challenge Commit History:
 
 - [Initial](https://github.com/Josehower/senseven-spa/tree/08921eb1df64dc2f88c0f60e9a1b89b532776851)
 - [Task 1](https://github.com/Josehower/senseven-spa/tree/d24cf9aa6ea075b4da547de4964ca0a1b2b4c288)

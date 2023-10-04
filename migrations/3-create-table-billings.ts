@@ -17,7 +17,7 @@ export async function up(sql: Sql) {
       billing_timestamp timestamptz NOT NULL DEFAULT NOW(),
       ticket_barcode_id varchar(16) NOT NULL REFERENCES tickets (barcode_id) ON DELETE CASCADE,
       payment_method_id integer NOT NULL REFERENCES payment_methods (id) ON DELETE CASCADE,
-      amount integer
+      amount integer NOT NULL
     )
   `;
 }
