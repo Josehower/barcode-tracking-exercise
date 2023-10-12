@@ -25,10 +25,6 @@
 - Apply migrations with `pnpm migrate up`
 - Run with `pnpm dev`
 
-## Databse Schema Design:
-
-![image](https://github.com/Josehower/senseven-spa/assets/61600906/67fa60ae-0324-45a1-a828-6ef0e4144fef)
-
 # Credits
 
 <a href="https://www.flaticon.com/free-icons/massage" title="massage icons">Massage icons created by Freepik - Flaticon</a>
