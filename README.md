@@ -1,4 +1,4 @@
-# SensevenSpa
+# barcode tracking exercise
 
 - Create new tickets to track visitors service time
 
