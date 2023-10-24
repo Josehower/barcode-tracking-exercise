@@ -30,9 +30,14 @@ export default function RootLayout({
                   SensevenSpa
                 </Typography>
               </Link>
-              <Link href="/checkout" color="secondary" sx={{ ml: 'auto' }}>
-                Checkout
-              </Link>
+              <Box sx={{ ml: 'auto' }} display="flex" gap="2rem">
+                <Link href="/checkout" color="secondary">
+                  Checkout
+                </Link>
+                <Link href="/exit" color="secondary">
+                  Exit
+                </Link>
+              </Box>
             </Toolbar>
           </AppBar>
           <Box
